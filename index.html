@@ -386,9 +386,9 @@
     </div>
   </section>
 
-  <!-- ===================== PRODUCTOS ===================== -->
+  <!-- ===================== PRODUCTOS 500ML ===================== -->
   <section>
-    <h2 class="section-title"><span class="num">02</span> Elegí tus cervezas</h2>
+    <h2 class="section-title"><span class="num">02</span> Botellas de medio litro</h2>
     <div class="rule"></div>
     <table class="products">
       <thead>
@@ -399,7 +399,26 @@
           <th class="num-col">Subtotal</th>
         </tr>
       </thead>
-      <tbody id="product-rows">
+      <tbody id="product-rows-500">
+        <!-- generado por JS -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===================== PRODUCTOS 1 LITRO ===================== -->
+  <section>
+    <h2 class="section-title"><span class="num">03</span> Botellas de un litro</h2>
+    <div class="rule"></div>
+    <table class="products">
+      <thead>
+        <tr>
+          <th>Producto (botella 1L)</th>
+          <th class="num-col">Precio unitario</th>
+          <th class="num-col">Cantidad</th>
+          <th class="num-col">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody id="product-rows-1l">
         <!-- generado por JS -->
       </tbody>
     </table>
@@ -424,40 +443,74 @@
   // Reemplazá esto por el mail donde querés recibir los pedidos
   const STORE_EMAIL = "pedidos@bamalt.com";
 
-  // Cargá acá tu propia lista de cervezas y precios
-  const PRODUCTS = [
-    { id: "ipa",    name: "IPA",          style: "India Pale Ale · 6.5% ABV", price: 4200 },
-    { id: "apa",    name: "APA",          style: "American Pale Ale · 5.2% ABV", price: 3900 },
-    { id: "golden", name: "Golden Ale",   style: "Suave y dorada · 4.8% ABV", price: 3700 },
-    { id: "stout",  name: "Stout",        style: "Negra cremosa · 5.8% ABV", price: 4400 },
-    { id: "porter", name: "Porter",       style: "Tostada y achocolatada · 5.5% ABV", price: 4300 },
-    { id: "scotch", name: "Scotch Ale",   style: "Amarga y maltosa · 7% ABV", price: 4900 },
-    { id: "weizen", name: "Weizen",       style: "Trigo, frutada · 5% ABV", price: 3800 },
-    { id: "session",name: "Session IPA",  style: "Liviana y lupulada · 4.2% ABV", price: 3600 },
+  // Cargá acá tu propia lista de cervezas y precios — botellas de 500ml
+  const PRODUCTS_500 = [
+    { id: "ipa500",    name: "IPA",          style: "India Pale Ale · 6.5% ABV", price: 4200 },
+    { id: "apa500",    name: "APA",          style: "American Pale Ale · 5.2% ABV", price: 3900 },
+    { id: "golden500", name: "Golden Ale",   style: "Suave y dorada · 4.8% ABV", price: 3700 },
+    { id: "stout500",  name: "Stout",        style: "Negra cremosa · 5.8% ABV", price: 4400 },
+    { id: "porter500", name: "Porter",       style: "Tostada y achocolatada · 5.5% ABV", price: 4300 },
+    { id: "scotch500", name: "Scotch Ale",   style: "Amarga y maltosa · 7% ABV", price: 4900 },
+    { id: "weizen500", name: "Weizen",       style: "Trigo, frutada · 5% ABV", price: 3800 },
+    { id: "session500",name: "Session IPA",  style: "Liviana y lupulada · 4.2% ABV", price: 3600 },
   ];
+
+  // Cargá acá tu propia lista de cervezas y precios — botellas de 1 litro
+  const PRODUCTS_1L = [
+    { id: "ipa1l",    name: "IPA",          style: "India Pale Ale · 6.5% ABV", price: 7600 },
+    { id: "apa1l",    name: "APA",          style: "American Pale Ale · 5.2% ABV", price: 7000 },
+    { id: "golden1l", name: "Golden Ale",   style: "Suave y dorada · 4.8% ABV", price: 6700 },
+    { id: "stout1l",  name: "Stout",        style: "Negra cremosa · 5.8% ABV", price: 7900 },
+    { id: "porter1l", name: "Porter",       style: "Tostada y achocolatada · 5.5% ABV", price: 7700 },
+    { id: "scotch1l", name: "Scotch Ale",   style: "Amarga y maltosa · 7% ABV", price: 8800 },
+    { id: "weizen1l", name: "Weizen",       style: "Trigo, frutada · 5% ABV", price: 6900 },
+    { id: "session1l",name: "Session IPA",  style: "Liviana y lupulada · 4.2% ABV", price: 6500 },
+  ];
+
+  const PRODUCTS = PRODUCTS_500.concat(PRODUCTS_1L);
 
   const fmt = n => "$" + n.toLocaleString("es-AR");
 
-  const tbody = document.getElementById("product-rows");
-  PRODUCTS.forEach(p => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td data-label="Producto">
-        <span class="prod-name">${p.name}</span>
-        <span class="prod-style">${p.style}</span>
-      </td>
-      <td data-label="Precio unitario" class="price-cell">${fmt(p.price)}</td>
-      <td data-label="Cantidad">
-        <div class="qty-control">
-          <button type="button" class="qty-btn" data-action="minus" data-id="${p.id}">−</button>
-          <input type="text" inputmode="numeric" class="qty-input" id="qty-${p.id}" value="0" data-id="${p.id}">
-          <button type="button" class="qty-btn" data-action="plus" data-id="${p.id}">+</button>
-        </div>
-      </td>
-      <td data-label="Subtotal" class="subtotal-cell" id="subtotal-${p.id}">$0</td>
-    `;
-    tbody.appendChild(tr);
-  });
+  function renderProducts(list, tbodyId){
+    const tbody = document.getElementById(tbodyId);
+    list.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td data-label="Producto">
+          <span class="prod-name">${p.name}</span>
+          <span class="prod-style">${p.style}</span>
+        </td>
+        <td data-label="Precio unitario" class="price-cell">${fmt(p.price)}</td>
+        <td data-label="Cantidad">
+          <div class="qty-control">
+            <button type="button" class="qty-btn" data-action="minus" data-id="${p.id}">−</button>
+            <input type="text" inputmode="numeric" class="qty-input" id="qty-${p.id}" value="0" data-id="${p.id}">
+            <button type="button" class="qty-btn" data-action="plus" data-id="${p.id}">+</button>
+          </div>
+        </td>
+        <td data-label="Subtotal" class="subtotal-cell" id="subtotal-${p.id}">$0</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    tbody.addEventListener("click", e => {
+      const btn = e.target.closest(".qty-btn");
+      if(!btn) return;
+      const id = btn.dataset.id;
+      const input = document.getElementById(`qty-${id}`);
+      let v = getQty(id);
+      v = btn.dataset.action === "plus" ? v + 1 : Math.max(0, v - 1);
+      input.value = v;
+      recalc();
+    });
+
+    tbody.addEventListener("input", e => {
+      if(e.target.classList.contains("qty-input")) recalc();
+    });
+  }
+
+  renderProducts(PRODUCTS_500, "product-rows-500");
+  renderProducts(PRODUCTS_1L, "product-rows-1l");
 
   function getQty(id){
     const el = document.getElementById(`qty-${id}`);
@@ -477,21 +530,6 @@
     return total;
   }
 
-  tbody.addEventListener("click", e => {
-    const btn = e.target.closest(".qty-btn");
-    if(!btn) return;
-    const id = btn.dataset.id;
-    const input = document.getElementById(`qty-${id}`);
-    let v = getQty(id);
-    v = btn.dataset.action === "plus" ? v + 1 : Math.max(0, v - 1);
-    input.value = v;
-    recalc();
-  });
-
-  tbody.addEventListener("input", e => {
-    if(e.target.classList.contains("qty-input")) recalc();
-  });
-
   recalc();
 
   // ============ ENVÍO POR MAIL ============
@@ -507,9 +545,13 @@
     const expreso = document.getElementById("f-expreso").value.trim();
     const notas = document.getElementById("f-notas").value.trim();
 
-    const items = PRODUCTS
+    const items500 = PRODUCTS_500
       .map(p => ({ ...p, qty: getQty(p.id) }))
       .filter(p => p.qty > 0);
+    const items1L = PRODUCTS_1L
+      .map(p => ({ ...p, qty: getQty(p.id) }))
+      .filter(p => p.qty > 0);
+    const items = items500.concat(items1L);
 
     const errorMsg = document.getElementById("error-msg");
     const faltanDatos = !cuit || !razonSocial || !nombre || !telefono || !direccion || !ciudad || !mail || !expreso;
@@ -537,11 +579,22 @@
     body += `Ciudad: ${ciudad}\n`;
     body += `Mail: ${mail}\n`;
     body += `Expreso: ${expreso}\n\n`;
-    body += `Botellas\n`;
-    body += `------------------------\n`;
-    items.forEach(p => {
-      body += `${p.name} x${p.qty} — ${fmt(p.qty * p.price)}\n`;
-    });
+    if(items500.length){
+      body += `Botellas 500ml\n`;
+      body += `------------------------\n`;
+      items500.forEach(p => {
+        body += `${p.name} x${p.qty} — ${fmt(p.qty * p.price)}\n`;
+      });
+      body += `\n`;
+    }
+    if(items1L.length){
+      body += `Botellas 1 litro\n`;
+      body += `------------------------\n`;
+      items1L.forEach(p => {
+        body += `${p.name} x${p.qty} — ${fmt(p.qty * p.price)}\n`;
+      });
+      body += `\n`;
+    }
     body += `\nTotal: ${fmt(total)}`;
     if(notas) body += `\n\nNotas: ${notas}`;
 
