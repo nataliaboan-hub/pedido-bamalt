@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ba-Malt SA — Pedido de botellas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E7DBBE;
+    --paper-light:#F1E8D2;
+    --ink:#241B12;
+    --ink-soft:#5B4E3B;
+    --bottle:#1D3B2D;
+    --bottle-light:#2C4F3B;
+    --copper:#A85C2E;
+    --copper-dark:#8A4620;
+    --hop:#6B7F4B;
+    --line:rgba(36,27,18,0.18);
+    --whatsapp:#2E7D4F;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(255,255,255,0.15), transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(0,0,0,0.05), transparent 45%);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    line-height:1.4;
+    padding-bottom:100px;
+  }
+
+  .page{
+    max-width:880px;
+    margin:0 auto;
+    padding:0 20px;
+  }
+
+  /* ---------- Header / label banner ---------- */
+  .label-banner{
+    background:var(--bottle);
+    background-image:linear-gradient(135deg, var(--bottle) 0%, var(--bottle-light) 100%);
+    margin:0 -20px 32px -20px;
+    padding:38px 20px 44px 20px;
+    text-align:center;
+    position:relative;
+    border-bottom:6px solid var(--copper);
+  }
+  .label-banner::after{
+    content:"";
+    position:absolute;
+    left:0; right:0; bottom:-6px;
+    height:6px;
+  }
+  .cap-badge{
+    width:64px; height:64px;
+    margin:0 auto 14px auto;
+    border-radius:50%;
+    background:var(--copper);
+    border:3px solid var(--paper-light);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 3px 0 rgba(0,0,0,0.25);
+  }
+  .cap-badge svg{width:30px;height:30px;fill:var(--paper-light);}
+  .label-banner h1{
+    font-family:'Oswald', sans-serif;
+    font-weight:700;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    font-size:clamp(28px, 5vw, 42px);
+    color:var(--paper-light);
+    margin:0 0 6px 0;
+  }
+  .label-banner p{
+    font-family:'JetBrains Mono', monospace;
+    color:var(--copper);
+    font-size:13px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    margin:0;
+  }
+
+  /* ---------- Section headers ---------- */
+  h2.section-title{
+    font-family:'Oswald', sans-serif;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    font-size:20px;
+    color:var(--bottle);
+    margin:0 0 4px 0;
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  h2.section-title .num{
+    font-family:'JetBrains Mono', monospace;
+    color:var(--copper);
+    font-size:14px;
+  }
+  .rule{
+    height:1px;
+    background:var(--line);
+    margin:12px 0 24px 0;
+  }
+  section{margin-bottom:36px;}
+
+  /* ---------- Form ---------- */
+  .form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px 20px;
+  }
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field.full{grid-column:1 / -1;}
+  label{
+    font-size:12px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+  }
+  label .req{color:var(--copper);}
+  input[type=text], input[type=tel], input[type=email], textarea{
+    background:var(--paper-light);
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:11px 12px;
+    font-family:'Inter', sans-serif;
+    font-size:15px;
+    color:var(--ink);
+  }
+  input:focus, textarea:focus{
+    outline:2px solid var(--copper);
+    outline-offset:1px;
+  }
+  textarea{resize:vertical; min-height:70px;}
+
+  .radio-toggle{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:4px;
+  }
+  .radio-toggle label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--paper-light);
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:10px 14px;
+    cursor:pointer;
+    text-transform:none;
+    font-weight:500;
+    font-size:14px;
+    color:var(--ink);
+    flex:1;
+    min-width:160px;
+  }
+  .radio-toggle input{accent-color:var(--copper);}
+
+  /* ---------- Product table ---------- */
+  table.products{
+    width:100%;
+    border-collapse:collapse;
+    background:var(--paper-light);
+  }
+  table.products thead th{
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    font-size:12px;
+    letter-spacing:0.06em;
+    color:var(--paper-light);
+    background:var(--bottle);
+    text-align:left;
+    padding:11px 14px;
+  }
+  table.products thead th.num-col{text-align:center;}
+  table.products tbody td{
+    padding:12px 14px;
+    border-bottom:1px solid var(--line);
+    vertical-align:middle;
+  }
+  table.products tbody tr:last-child td{border-bottom:none;}
+  .prod-name{font-weight:600;}
+  .prod-style{
+    display:block;
+    font-size:12px;
+    color:var(--ink-soft);
+    font-weight:400;
+  }
+  .price-cell, .subtotal-cell{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:500;
+    white-space:nowrap;
+  }
+  .subtotal-cell{font-weight:700; color:var(--bottle);}
+
+  .qty-control{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+  }
+  .qty-btn{
+    width:28px; height:28px;
+    border:1px solid var(--copper);
+    background:var(--paper-light);
+    color:var(--copper);
+    border-radius:3px;
+    font-size:16px;
+    font-weight:700;
+    line-height:1;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .qty-btn:hover{background:var(--copper); color:var(--paper-light);}
+  .qty-input{
+    width:42px;
+    text-align:center;
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:5px 2px;
+    background:#fff;
+  }
+
+  /* mobile card layout for table */
+  @media (max-width:640px){
+    table.products thead{display:none;}
+    table.products, table.products tbody, table.products tr, table.products td{
+      display:block;
+      width:100%;
+    }
+    table.products tr{
+      border:1px solid var(--line);
+      border-radius:4px;
+      margin-bottom:10px;
+      padding:10px 12px;
+    }
+    table.products td{
+      border:none;
+      padding:6px 0;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    table.products td::before{
+      content:attr(data-label);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      color:var(--ink-soft);
+      font-weight:600;
+    }
+    .form-grid{grid-template-columns:1fr;}
+  }
+
+  /* ---------- Sticky total bar ---------- */
+  .total-bar{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    background:var(--bottle);
+    border-top:4px solid var(--copper);
+    padding:14px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:24px;
+    flex-wrap:wrap;
+    z-index:10;
+  }
+  .total-info{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    color:var(--paper-light);
+  }
+  .total-info .label{
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    font-size:13px;
+  }
+  .total-info .amount{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size:24px;
+    color:var(--copper);
+  }
+  .send-btn{
+    background:var(--whatsapp);
+    color:#fff;
+    border:none;
+    padding:13px 22px;
+    border-radius:4px;
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+  }
+  .send-btn:hover{filter:brightness(1.08);}
+  .send-btn:disabled{opacity:0.5; cursor:not-allowed;}
+  .send-btn svg{width:18px;height:18px;fill:#fff;}
+
+  .error-msg{
+    color:var(--copper-dark);
+    font-size:13px;
+    font-weight:600;
+    text-align:center;
+    margin-top:6px;
+    display:none;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="label-banner">
+    <div class="cap-badge">
+      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 2c1 0 1.9.2 2.7.6l-.9 1.6-1.8-.7-1.8.7-.9-1.6C10.1 4.2 11 4 12 4zm-5.4 2.2l1.6.9-.7 1.8.7 1.8-1.6.9A8 8 0 016.6 6.2zm10.8 0a8 8 0 011.6 5.4l-1.6-.9.7-1.8-.7-1.8zM4 12c0-.3 0-.7.1-1l1.7.6v1.8L4.1 14C4 13.4 4 12.7 4 12zm16 0c0 .7 0 1.4-.1 2l-1.7-.6v-1.8l1.7-.6c.1.3.1.7.1 1zM9.3 19.2l.9-1.6 1.8.7 1.8-.7.9 1.6a8 8 0 01-5.4 0z"/></svg>
+    </div>
+    <h1>Ba-Malt SA</h1>
+    <p>Pedido de botellas para retiro o envío</p>
+  </header>
+
+  <!-- ===================== DATOS DEL CLIENTE ===================== -->
+  <section>
+    <h2 class="section-title"><span class="num">01</span> Tus datos</h2>
+    <div class="rule"></div>
+    <div class="form-grid">
+      <div class="field full">
+        <label>CUIT <span class="req">*</span></label>
+        <input type="text" id="f-cuit" placeholder="Ej: 20-12345678-9">
+        <div class="radio-toggle">
+          <label><input type="radio" name="condicion" value="Monotributista"> Monotributista</label>
+          <label><input type="radio" name="condicion" value="Consumidor final" checked> Consumidor final</label>
+          <label><input type="radio" name="condicion" value="Responsable inscripto"> Responsable inscripto</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Razón Social <span class="req">*</span></label>
+        <input type="text" id="f-razon" placeholder="Nombre de tu empresa">
+      </div>
+      <div class="field">
+        <label>Nombre <span class="req">*</span></label>
+        <input type="text" id="f-nombre" placeholder="Ej: Juan Pérez">
+      </div>
+      <div class="field">
+        <label>Teléfono <span class="req">*</span></label>
+        <input type="tel" id="f-telefono" placeholder="Ej: 11 2345 6789">
+      </div>
+      <div class="field">
+        <label>Dirección <span class="req">*</span></label>
+        <input type="text" id="f-direccion" placeholder="Calle y número">
+      </div>
+      <div class="field">
+        <label>Ciudad <span class="req">*</span></label>
+        <input type="text" id="f-ciudad" placeholder="Ej: Buenos Aires">
+      </div>
+      <div class="field">
+        <label>Mail <span class="req">*</span></label>
+        <input type="email" id="f-mail" placeholder="tumail@ejemplo.com">
+      </div>
+      <div class="field">
+        <label>Expreso <span class="req">*</span></label>
+        <input type="text" id="f-expreso" placeholder="Empresa de encomienda preferida">
+      </div>
+      <div class="field full">
+        <label>Notas del pedido</label>
+        <textarea id="f-notas" placeholder="Ej: horario de retiro preferido, aclaraciones, etc."></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PRODUCTOS ===================== -->
+  <section>
+    <h2 class="section-title"><span class="num">02</span> Elegí tus cervezas</h2>
+    <div class="rule"></div>
+    <table class="products">
+      <thead>
+        <tr>
+          <th>Producto (botella 500ml)</th>
+          <th class="num-col">Precio unitario</th>
+          <th class="num-col">Cantidad</th>
+          <th class="num-col">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody id="product-rows">
+        <!-- generado por JS -->
+      </tbody>
+    </table>
+  </section>
+
+</div>
+
+<div class="total-bar">
+  <div class="total-info">
+    <span class="label">Total del pedido</span>
+    <span class="amount" id="total-amount">$0</span>
+  </div>
+  <button class="send-btn" id="send-btn">
+    <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.3-.1-1.2-.4-2.3-1.4-.8-.8-1.4-1.7-1.6-2-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.3-.4.1-.2 0-.4 0-.5C11 9 10.5 7.7 10.3 7.2c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s1 2.5 1.1 2.7c.1.2 2 3 4.8 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.6 1.4 5.1L2 22l5-1.3c1.4.8 3.1 1.2 4.9 1.2h.1c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2h-.1c-1.6 0-3.2-.4-4.5-1.2l-.3-.2-3.3.9.9-3.2-.2-.3c-.9-1.4-1.4-3-1.4-4.7C3.1 6.9 7 3.1 12 3.1c2.4 0 4.7.9 6.4 2.7 1.7 1.7 2.7 4 2.7 6.4-.1 5-4 8.6-9.1 8.6z"/></svg>
+    Enviar pedido por WhatsApp
+  </button>
+</div>
+<div class="error-msg" id="error-msg">Completá todos los campos obligatorios y al menos una botella para enviar el pedido.</div>
+
+<script>
+  // ============ CONFIGURACIÓN ============
+  // Reemplazá este número por el WhatsApp de tu local (código de país + número, sin +, sin espacios)
+  const STORE_WHATSAPP = "5491100000000";
+
+  // Cargá acá tu propia lista de cervezas y precios
+  const PRODUCTS = [
+    { id: "ipa",    name: "IPA",          style: "India Pale Ale · 6.5% ABV", price: 4200 },
+    { id: "apa",    name: "APA",          style: "American Pale Ale · 5.2% ABV", price: 3900 },
+    { id: "golden", name: "Golden Ale",   style: "Suave y dorada · 4.8% ABV", price: 3700 },
+    { id: "stout",  name: "Stout",        style: "Negra cremosa · 5.8% ABV", price: 4400 },
+    { id: "porter", name: "Porter",       style: "Tostada y achocolatada · 5.5% ABV", price: 4300 },
+    { id: "scotch", name: "Scotch Ale",   style: "Amarga y maltosa · 7% ABV", price: 4900 },
+    { id: "weizen", name: "Weizen",       style: "Trigo, frutada · 5% ABV", price: 3800 },
+    { id: "session",name: "Session IPA",  style: "Liviana y lupulada · 4.2% ABV", price: 3600 },
+  ];
+
+  const fmt = n => "$" + n.toLocaleString("es-AR");
+
+  const tbody = document.getElementById("product-rows");
+  PRODUCTS.forEach(p => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td data-label="Producto">
+        <span class="prod-name">${p.name}</span>
+        <span class="prod-style">${p.style}</span>
+      </td>
+      <td data-label="Precio unitario" class="price-cell">${fmt(p.price)}</td>
+      <td data-label="Cantidad">
+        <div class="qty-control">
+          <button type="button" class="qty-btn" data-action="minus" data-id="${p.id}">−</button>
+          <input type="text" inputmode="numeric" class="qty-input" id="qty-${p.id}" value="0" data-id="${p.id}">
+          <button type="button" class="qty-btn" data-action="plus" data-id="${p.id}">+</button>
+        </div>
+      </td>
+      <td data-label="Subtotal" class="subtotal-cell" id="subtotal-${p.id}">$0</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  function getQty(id){
+    const el = document.getElementById(`qty-${id}`);
+    const v = parseInt(el.value, 10);
+    return isNaN(v) || v < 0 ? 0 : v;
+  }
+
+  function recalc(){
+    let total = 0;
+    PRODUCTS.forEach(p => {
+      const qty = getQty(p.id);
+      const sub = qty * p.price;
+      document.getElementById(`subtotal-${p.id}`).textContent = fmt(sub);
+      total += sub;
+    });
+    document.getElementById("total-amount").textContent = fmt(total);
+    return total;
+  }
+
+  tbody.addEventListener("click", e => {
+    const btn = e.target.closest(".qty-btn");
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const input = document.getElementById(`qty-${id}`);
+    let v = getQty(id);
+    v = btn.dataset.action === "plus" ? v + 1 : Math.max(0, v - 1);
+    input.value = v;
+    recalc();
+  });
+
+  tbody.addEventListener("input", e => {
+    if(e.target.classList.contains("qty-input")) recalc();
+  });
+
+  recalc();
+
+  // ============ ENVÍO POR WHATSAPP ============
+  document.getElementById("send-btn").addEventListener("click", () => {
+    const cuit = document.getElementById("f-cuit").value.trim();
+    const condicion = document.querySelector('input[name="condicion"]:checked').value;
+    const razonSocial = document.getElementById("f-razon").value.trim();
+    const nombre = document.getElementById("f-nombre").value.trim();
+    const telefono = document.getElementById("f-telefono").value.trim();
+    const direccion = document.getElementById("f-direccion").value.trim();
+    const ciudad = document.getElementById("f-ciudad").value.trim();
+    const mail = document.getElementById("f-mail").value.trim();
+    const expreso = document.getElementById("f-expreso").value.trim();
+    const notas = document.getElementById("f-notas").value.trim();
+
+    const items = PRODUCTS
+      .map(p => ({ ...p, qty: getQty(p.id) }))
+      .filter(p => p.qty > 0);
+
+    const errorMsg = document.getElementById("error-msg");
+    const faltanDatos = !cuit || !razonSocial || !nombre || !telefono || !direccion || !ciudad || !mail || !expreso;
+
+    if(faltanDatos || items.length === 0){
+      errorMsg.textContent = faltanDatos
+        ? "Completá todos los campos obligatorios (*) de tus datos."
+        : "Elegí al menos una botella para enviar el pedido.";
+      errorMsg.style.display = "block";
+      return;
+    }
+    errorMsg.style.display = "none";
+
+    const total = recalc();
+
+    let msg = `*Nuevo pedido — Ba-Malt SA*\n\n`;
+    msg += `*CUIT:* ${cuit} (${condicion})\n`;
+    msg += `*Razón Social:* ${razonSocial}\n`;
+    msg += `*Nombre:* ${nombre}\n`;
+    msg += `*Teléfono:* ${telefono}\n`;
+    msg += `*Dirección:* ${direccion}\n`;
+    msg += `*Ciudad:* ${ciudad}\n`;
+    msg += `*Mail:* ${mail}\n`;
+    msg += `*Expreso:* ${expreso}\n`;
+    msg += `\n*Botellas:*\n`;
+    items.forEach(p => {
+      msg += `• ${p.name} x${p.qty} — ${fmt(p.qty * p.price)}\n`;
+    });
+    msg += `\n*Total: ${fmt(total)}*`;
+    if(notas) msg += `\n\n*Notas:* ${notas}`;
+
+    const url = `https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(msg)}`;
+    window.open(url, "_blank");
+  });
+</script>
+
+</body>
+</html>
