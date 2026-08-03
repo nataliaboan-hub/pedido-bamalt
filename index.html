@@ -262,6 +262,11 @@
       color:var(--ink-soft);
       font-weight:600;
     }
+    table.products td.prod-cell{
+      flex-direction:column;
+      align-items:flex-start;
+      gap:3px;
+    }
     .form-grid{grid-template-columns:1fr;}
   }
 
@@ -476,7 +481,7 @@
     list.forEach(p => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td data-label="Producto">
+        <td data-label="Producto" class="prod-cell">
           <span class="prod-name">${p.name}</span>
           <span class="prod-style">${p.style}</span>
         </td>
