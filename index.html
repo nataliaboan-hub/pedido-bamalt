@@ -18,7 +18,7 @@
     --copper-dark:#8A4620;
     --hop:#6B7F4B;
     --line:rgba(36,27,18,0.18);
-    --whatsapp:#2E7D4F;
+    --mail-btn:#3D5A80;
   }
 
   *{box-sizing:border-box;}
@@ -298,7 +298,7 @@
     color:var(--copper);
   }
   .send-btn{
-    background:var(--whatsapp);
+    background:var(--mail-btn);
     color:#fff;
     border:none;
     padding:13px 22px;
@@ -413,16 +413,16 @@
     <span class="amount" id="total-amount">$0</span>
   </div>
   <button class="send-btn" id="send-btn">
-    <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.3-.1-1.2-.4-2.3-1.4-.8-.8-1.4-1.7-1.6-2-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.3-.4.1-.2 0-.4 0-.5C11 9 10.5 7.7 10.3 7.2c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s1 2.5 1.1 2.7c.1.2 2 3 4.8 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.6 1.4 5.1L2 22l5-1.3c1.4.8 3.1 1.2 4.9 1.2h.1c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2h-.1c-1.6 0-3.2-.4-4.5-1.2l-.3-.2-3.3.9.9-3.2-.2-.3c-.9-1.4-1.4-3-1.4-4.7C3.1 6.9 7 3.1 12 3.1c2.4 0 4.7.9 6.4 2.7 1.7 1.7 2.7 4 2.7 6.4-.1 5-4 8.6-9.1 8.6z"/></svg>
-    Enviar pedido por WhatsApp
+    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+    Enviar pedido por mail
   </button>
 </div>
 <div class="error-msg" id="error-msg">Completá todos los campos obligatorios y al menos una botella para enviar el pedido.</div>
 
 <script>
   // ============ CONFIGURACIÓN ============
-  // Reemplazá este número por el WhatsApp de tu local (código de país + número, sin +, sin espacios)
-  const STORE_WHATSAPP = "5491100000000";
+  // Reemplazá esto por el mail donde querés recibir los pedidos
+  const STORE_EMAIL = "pedidos@bamalt.com";
 
   // Cargá acá tu propia lista de cervezas y precios
   const PRODUCTS = [
@@ -494,7 +494,7 @@
 
   recalc();
 
-  // ============ ENVÍO POR WHATSAPP ============
+  // ============ ENVÍO POR MAIL ============
   document.getElementById("send-btn").addEventListener("click", () => {
     const cuit = document.getElementById("f-cuit").value.trim();
     const condicion = document.querySelector('input[name="condicion"]:checked').value;
@@ -525,24 +525,28 @@
 
     const total = recalc();
 
-    let msg = `*Nuevo pedido — Ba-Malt SA*\n\n`;
-    msg += `*CUIT:* ${cuit} (${condicion})\n`;
-    msg += `*Razón Social:* ${razonSocial}\n`;
-    msg += `*Nombre:* ${nombre}\n`;
-    msg += `*Teléfono:* ${telefono}\n`;
-    msg += `*Dirección:* ${direccion}\n`;
-    msg += `*Ciudad:* ${ciudad}\n`;
-    msg += `*Mail:* ${mail}\n`;
-    msg += `*Expreso:* ${expreso}\n`;
-    msg += `\n*Botellas:*\n`;
-    items.forEach(p => {
-      msg += `• ${p.name} x${p.qty} — ${fmt(p.qty * p.price)}\n`;
-    });
-    msg += `\n*Total: ${fmt(total)}*`;
-    if(notas) msg += `\n\n*Notas:* ${notas}`;
+    const subject = `Nuevo pedido — ${razonSocial || nombre}`;
 
-    const url = `https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(msg)}`;
-    window.open(url, "_blank");
+    let body = `Datos del cliente\n`;
+    body += `------------------------\n`;
+    body += `CUIT: ${cuit} (${condicion})\n`;
+    body += `Razón Social: ${razonSocial}\n`;
+    body += `Nombre: ${nombre}\n`;
+    body += `Teléfono: ${telefono}\n`;
+    body += `Dirección: ${direccion}\n`;
+    body += `Ciudad: ${ciudad}\n`;
+    body += `Mail: ${mail}\n`;
+    body += `Expreso: ${expreso}\n\n`;
+    body += `Botellas\n`;
+    body += `------------------------\n`;
+    items.forEach(p => {
+      body += `${p.name} x${p.qty} — ${fmt(p.qty * p.price)}\n`;
+    });
+    body += `\nTotal: ${fmt(total)}`;
+    if(notas) body += `\n\nNotas: ${notas}`;
+
+    const url = `mailto:${STORE_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = url;
   });
 </script>
 
