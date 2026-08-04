@@ -437,6 +437,27 @@
 
   const fmt = n => "$" + n.toLocaleString("es-AR");
 
+  function parsePrice(raw){
+    if(raw === undefined || raw === null) return 0;
+    let s = raw.toString().trim().replace(/[^\d.,-]/g, "");
+    if(s === "") return 0;
+    if(s.includes(".") && s.includes(",")){
+      // formato "4.200,50" -> punto de miles, coma decimal
+      s = s.replace(/\./g, "").replace(",", ".");
+    } else if(s.includes(",") && !s.includes(".")){
+      // formato "4200,50" -> coma decimal
+      s = s.replace(",", ".");
+    } else if(s.includes(".")){
+      const parts = s.split(".");
+      // "4.200" (grupo de 3 dígitos) se interpreta como separador de miles
+      if(parts.length > 1 && parts[parts.length - 1].length === 3){
+        s = s.replace(/\./g, "");
+      }
+    }
+    const num = parseFloat(s);
+    return isNaN(num) ? 0 : Math.round(num);
+  }
+
   // ---------- Parser de CSV (soporta campos entre comillas con comas adentro) ----------
   function parseCSV(text){
     const rows = [];
@@ -639,7 +660,7 @@
             name: o.nombre,
             style: o.estilo || "",
             size: o["tamaño"] || o["tamano"] || "Otros",
-            price: parseInt(o.precio, 10) || 0,
+            price: parsePrice(o.precio),
             stock: isNaN(stockVal) ? undefined : stockVal,
           };
         });
