@@ -509,7 +509,7 @@
     tr.innerHTML = `
       <td data-label="Producto" class="prod-cell">
         <span class="prod-name">${p.name}</span>
-        <span class="prod-style">${p.style}</span>
+        ${p.style ? `<span class="prod-style">${p.style}</span>` : ""}
       </td>
       <td data-label="Precio unitario" class="price-cell">
         ${fmt(p.price)}
