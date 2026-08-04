@@ -409,6 +409,27 @@
     "Lata": "Latas",
   };
 
+  // URL del Apps Script (termina en /exec) que guarda cada pedido en la planilla de historial
+  const ORDERS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNdda33p8UabfwMY8GdnGlWD6Mc1kJCvblS-F3eUJpdg7noaH3E5bdWJjEiQiWMfwHqQ/exec";
+
+  function logOrder(nombre, telefono, groupsWithItems, total){
+    if(ORDERS_SCRIPT_URL.includes("PEGAR_ACA")) return; // todavía no configurado
+    const items = [];
+    groupsWithItems.forEach(g => {
+      g.items.forEach(p => items.push({ name: p.name, size: g.size, qty: p.qty, price: p.price }));
+    });
+    const payload = {
+      fecha: new Date().toISOString(),
+      pedidoId: Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+      nombre, telefono, items, total,
+    };
+    fetch(ORDERS_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      body: JSON.stringify(payload),
+    }).catch(err => console.warn("No se pudo registrar el pedido en el historial:", err));
+  }
+
   const fmt = n => "$" + n.toLocaleString("es-AR");
 
   // ---------- Parser de CSV (soporta campos entre comillas con comas adentro) ----------
@@ -674,6 +695,8 @@
     });
 
     body += `\nTotal: ${fmt(total)}`;
+
+    logOrder(nombre, telefono, groupsWithItems, total);
 
     const url = `mailto:${STORE_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = url;
