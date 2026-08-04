@@ -57,18 +57,24 @@
     left:0; right:0; bottom:-6px;
     height:6px;
   }
-  .cap-badge{
-    width:64px; height:64px;
-    margin:0 auto 14px auto;
+  .logo-img{
+    width:120px;
+    height:120px;
     border-radius:50%;
-    background:var(--copper);
-    border:3px solid var(--paper-light);
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    display:block;
+    margin:0 auto 14px auto;
     box-shadow:0 3px 0 rgba(0,0,0,0.25);
+    background:var(--paper-light);
   }
-  .cap-badge svg{width:30px;height:30px;fill:var(--paper-light);}
+  .sr-only{
+    position:absolute;
+    width:1px; height:1px;
+    padding:0; margin:-1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;
+    border:0;
+  }
   .label-banner h1{
     font-family:'Oswald', sans-serif;
     font-weight:700;
@@ -207,12 +213,13 @@
   .stock-label{
     display:block;
     font-size:11px;
-    font-weight:600;
-    color:var(--hop);
+    font-weight:700;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--copper-dark);
     margin-top:2px;
   }
-  tr.agotado{opacity:0.5;}
-  tr.agotado .stock-label{color:var(--copper-dark); text-transform:uppercase;}
+  tr.agotado{opacity:0.55;}
   .qty-btn:disabled, .qty-input:disabled{
     opacity:0.4;
     cursor:not-allowed;
@@ -349,10 +356,8 @@
 <div class="page">
 
   <header class="label-banner">
-    <div class="cap-badge">
-      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 2c1 0 1.9.2 2.7.6l-.9 1.6-1.8-.7-1.8.7-.9-1.6C10.1 4.2 11 4 12 4zm-5.4 2.2l1.6.9-.7 1.8.7 1.8-1.6.9A8 8 0 016.6 6.2zm10.8 0a8 8 0 011.6 5.4l-1.6-.9.7-1.8-.7-1.8zM4 12c0-.3 0-.7.1-1l1.7.6v1.8L4.1 14C4 13.4 4 12.7 4 12zm16 0c0 .7 0 1.4-.1 2l-1.7-.6v-1.8l1.7-.6c.1.3.1.7.1 1zM9.3 19.2l.9-1.6 1.8.7 1.8-.7.9 1.6a8 8 0 01-5.4 0z"/></svg>
-    </div>
-    <h1>Bierlife</h1>
+    <img src="logo-bierlife.jpg" alt="Bierlife" class="logo-img">
+    <h1 class="sr-only">Bierlife</h1>
     <p>Pedido de botellas para mayorista</p>
   </header>
 
@@ -394,7 +399,7 @@
 <script>
   // ============ CONFIGURACIÓN ============
   // Mail donde querés recibir los pedidos
-  const STORE_EMAIL = "martinboan@gmail.com";
+  const STORE_EMAIL = "pedidos@bamalt.com";
 
   // Link de "Publicar en la Web" (formato CSV) de la planilla con el catálogo completo.
   // La planilla debe tener las columnas: id, nombre, estilo, tamaño, precio, stock, activo
@@ -416,7 +421,7 @@
     if(ORDERS_SCRIPT_URL.includes("PEGAR_ACA")) return; // todavía no configurado
     const items = [];
     groupsWithItems.forEach(g => {
-      g.items.forEach(p => items.push({ name: p.name, size: g.size, qty: p.qty, price: p.price }));
+      g.items.forEach(p => items.push({ id: p.id, name: p.name, size: g.size, qty: p.qty, price: p.price }));
     });
     const payload = {
       fecha: new Date().toISOString(),
@@ -501,7 +506,6 @@
     const btns = row.querySelectorAll(".qty-btn");
 
     if(p.stock === undefined){
-      // sin control de stock para este producto
       qtyInput.disabled = false;
       btns.forEach(b => b.disabled = false);
       row.classList.remove("agotado");
@@ -519,7 +523,7 @@
       qtyInput.disabled = false;
       btns.forEach(b => b.disabled = false);
       row.classList.remove("agotado");
-      if(stockLabel) stockLabel.textContent = `Quedan ${p.stock}`;
+      if(stockLabel) stockLabel.textContent = "";
       qtyInput.value = clampToStock(p.id, getQty(p.id));
     }
   }
