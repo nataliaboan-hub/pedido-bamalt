@@ -341,23 +341,47 @@
   .send-btn:disabled{opacity:0.5; cursor:not-allowed;}
   .send-btn svg{width:18px;height:18px;fill:#fff;}
 
-  .error-msg{
-    color:var(--copper-dark);
-    font-size:13px;
-    font-weight:600;
-    text-align:center;
-    margin-top:6px;
+  /* ---------- Aviso centrado (éxito / error) ---------- */
+  .toast-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(36,27,18,0.55);
     display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:60;
+    padding:20px;
   }
-
-  .success-msg{
-    color:var(--hop);
-    font-size:13px;
-    font-weight:600;
+  .toast-overlay.show{display:flex;}
+  .toast-box{
+    background:var(--paper-light);
+    border-radius:6px;
+    border-top:4px solid var(--hop);
+    padding:28px 24px;
+    max-width:380px;
+    width:100%;
     text-align:center;
-    margin-top:6px;
-    display:none;
+    box-shadow:0 8px 24px rgba(0,0,0,0.3);
   }
+  .toast-box.error{border-top-color:var(--copper-dark);}
+  .toast-box p{
+    color:var(--ink);
+    font-size:14px;
+    line-height:1.5;
+    margin:0 0 20px 0;
+  }
+  .toast-close-btn{
+    background:var(--bottle);
+    color:#fff;
+    border:none;
+    padding:10px 22px;
+    border-radius:4px;
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .toast-close-btn:hover{filter:brightness(1.15);}
 </style>
 </head>
 <body>
@@ -403,8 +427,13 @@
     Enviar pedido por WhatsApp
   </button>
 </div>
-<div class="error-msg" id="error-msg">Completá tu nombre y teléfono y al menos una botella para enviar el pedido.</div>
-<div class="success-msg" id="success-msg">¡Listo! Te llevamos a WhatsApp con tu pedido armado — confirmá el envío ahí para completarlo.</div>
+
+<div class="toast-overlay" id="order-toast">
+  <div class="toast-box" id="order-toast-box">
+    <p id="order-toast-text"></p>
+    <button type="button" id="order-toast-close" class="toast-close-btn">Cerrar</button>
+  </div>
+</div>
 
 <script>
   // ============ CONFIGURACIÓN ============
@@ -690,12 +719,19 @@
   // Reemplazá este número por el WhatsApp de tu local (código de país + número, sin +, sin espacios)
   const STORE_WHATSAPP = "5491141696691";
 
+  function showToast(type, text){
+    document.getElementById("order-toast-text").textContent = text;
+    document.getElementById("order-toast-box").classList.toggle("error", type === "error");
+    document.getElementById("order-toast").classList.add("show");
+  }
+  document.getElementById("order-toast-close").addEventListener("click", () => {
+    document.getElementById("order-toast").classList.remove("show");
+  });
+
   document.getElementById("send-btn").addEventListener("click", () => {
     const nombre = document.getElementById("f-nombre").value.trim();
     const telefono = document.getElementById("f-telefono").value.trim();
 
-    const errorMsg = document.getElementById("error-msg");
-    const successMsg = document.getElementById("success-msg");
     const faltanDatos = !nombre || !telefono;
 
     const groupsWithItems = PRODUCTS_BY_SIZE.map(g => ({
@@ -704,18 +740,15 @@
     })).filter(g => g.items.length > 0);
 
     if(faltanDatos || groupsWithItems.length === 0){
-      successMsg.style.display = "none";
-      errorMsg.textContent = faltanDatos
+      showToast("error", faltanDatos
         ? "Completá tu nombre y teléfono para continuar."
-        : "Elegí al menos un producto para enviar el pedido.";
-      errorMsg.style.display = "block";
+        : "Elegí al menos un producto para enviar el pedido.");
       return;
     }
-    errorMsg.style.display = "none";
 
     const total = recalc();
 
-    let msg = `*Nuevo pedido — Bierlife*\n\n`;
+    let msg = `*Nuevo pedido mayorista - Bierlife*\n\n`;
     msg += `*Nombre:* ${nombre}\n`;
     msg += `*Teléfono:* ${telefono}\n\n`;
 
@@ -730,7 +763,7 @@
 
     logOrder(nombre, telefono, groupsWithItems, total);
 
-    successMsg.style.display = "block";
+    showToast("success", "¡Listo! Te llevamos a WhatsApp con tu pedido armado — confirmá el envío ahí para completarlo.");
 
     const waUrl = `https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(msg)}`;
     window.open(waUrl, "_blank");
