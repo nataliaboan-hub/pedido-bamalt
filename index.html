@@ -18,7 +18,7 @@
     --copper-dark:#8A4620;
     --hop:#6B7F4B;
     --line:rgba(36,27,18,0.18);
-    --mail-btn:#3D5A80;
+    --whatsapp:#2E7D4F;
   }
 
   *{box-sizing:border-box;}
@@ -324,7 +324,7 @@
     color:var(--copper);
   }
   .send-btn{
-    background:var(--mail-btn);
+    background:var(--whatsapp);
     color:#fff;
     border:none;
     padding:13px 22px;
@@ -343,6 +343,15 @@
 
   .error-msg{
     color:var(--copper-dark);
+    font-size:13px;
+    font-weight:600;
+    text-align:center;
+    margin-top:6px;
+    display:none;
+  }
+
+  .success-msg{
+    color:var(--hop);
     font-size:13px;
     font-weight:600;
     text-align:center;
@@ -390,17 +399,15 @@
     <span class="amount" id="total-amount">$0</span>
   </div>
   <button class="send-btn" id="send-btn">
-    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-    Enviar pedido por mail
+    <svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.3-.1-1.2-.4-2.3-1.4-.8-.8-1.4-1.7-1.6-2-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.3-.4.1-.2 0-.4 0-.5C11 9 10.5 7.7 10.3 7.2c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s1 2.5 1.1 2.7c.1.2 2 3 4.8 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.6 1.4 5.1L2 22l5-1.3c1.4.8 3.1 1.2 4.9 1.2h.1c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2h-.1c-1.6 0-3.2-.4-4.5-1.2l-.3-.2-3.3.9.9-3.2-.2-.3c-.9-1.4-1.4-3-1.4-4.7C3.1 6.9 7 3.1 12 3.1c2.4 0 4.7.9 6.4 2.7 1.7 1.7 2.7 4 2.7 6.4-.1 5-4 8.6-9.1 8.6z"/></svg>
+    Enviar pedido por WhatsApp
   </button>
 </div>
 <div class="error-msg" id="error-msg">Completá tu nombre y teléfono y al menos una botella para enviar el pedido.</div>
+<div class="success-msg" id="success-msg">¡Listo! Te llevamos a WhatsApp con tu pedido armado — confirmá el envío ahí para completarlo.</div>
 
 <script>
   // ============ CONFIGURACIÓN ============
-  // Mail donde querés recibir los pedidos
-  const STORE_EMAIL = "martinboan@gmail.com";
-
   // Link de "Publicar en la Web" (formato CSV) de la planilla con el catálogo completo.
   // La planilla debe tener las columnas: id, nombre, estilo, tamaño, precio, stock, activo
   const CATALOG_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRCRVzaSkLouMhcFSkZMq7JxRcDcFYmiRH0YPy2fVni1uS3MOMAzUfVlySkOg60-PZlC-wZ11XiimtV/pub?gid=561970596&single=true&output=csv";
@@ -679,12 +686,16 @@
   // Vuelve a leer la planilla cada 60 segundos por si un cliente deja la página abierta
   setInterval(loadCatalog, 60000);
 
-  // ============ ENVÍO POR MAIL ============
+  // ============ ENVÍO POR WHATSAPP ============
+  // Reemplazá este número por el WhatsApp de tu local (código de país + número, sin +, sin espacios)
+  const STORE_WHATSAPP = "5491141696691";
+
   document.getElementById("send-btn").addEventListener("click", () => {
     const nombre = document.getElementById("f-nombre").value.trim();
     const telefono = document.getElementById("f-telefono").value.trim();
 
     const errorMsg = document.getElementById("error-msg");
+    const successMsg = document.getElementById("success-msg");
     const faltanDatos = !nombre || !telefono;
 
     const groupsWithItems = PRODUCTS_BY_SIZE.map(g => ({
@@ -693,6 +704,7 @@
     })).filter(g => g.items.length > 0);
 
     if(faltanDatos || groupsWithItems.length === 0){
+      successMsg.style.display = "none";
       errorMsg.textContent = faltanDatos
         ? "Completá tu nombre y teléfono para continuar."
         : "Elegí al menos un producto para enviar el pedido.";
@@ -703,28 +715,31 @@
 
     const total = recalc();
 
-    const subject = `Nuevo pedido mayorista - ${nombre}`;
-
-    let body = `Datos del cliente\n`;
-    body += `------------------------\n`;
-    body += `Nombre: ${nombre}\n`;
-    body += `Teléfono: ${telefono}\n\n`;
+    let msg = `*Nuevo pedido — Bierlife*\n\n`;
+    msg += `*Nombre:* ${nombre}\n`;
+    msg += `*Teléfono:* ${telefono}\n\n`;
 
     groupsWithItems.forEach(g => {
-      body += `${SIZE_LABELS[g.size] || g.size}\n`;
-      body += `------------------------\n`;
+      msg += `*${SIZE_LABELS[g.size] || g.size}*\n`;
       g.items.forEach(p => {
-        body += `${p.name} x${p.qty} — ${fmt(p.qty * p.price)}\n`;
+        msg += `• ${p.name} x${p.qty} — ${fmt(p.qty * p.price)}\n`;
       });
-      body += `\n`;
+      msg += `\n`;
     });
-
-    body += `\nTotal: ${fmt(total)}`;
+    msg += `*Total: ${fmt(total)}*`;
 
     logOrder(nombre, telefono, groupsWithItems, total);
 
-    const url = `mailto:${STORE_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = url;
+    successMsg.style.display = "block";
+
+    const waUrl = `https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(msg)}`;
+    window.open(waUrl, "_blank");
+
+    PRODUCTS.forEach(p => {
+      const el = document.getElementById(`qty-${p.id}`);
+      if(el) el.value = 0;
+    });
+    recalc();
   });
 </script>
 
