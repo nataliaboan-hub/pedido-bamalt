@@ -203,12 +203,12 @@
     color:var(--ink-soft);
     font-weight:400;
   }
-  .price-cell, .subtotal-cell{
+  .price-cell{
     font-family:'JetBrains Mono', monospace;
     font-weight:500;
     white-space:nowrap;
   }
-  .subtotal-cell{font-weight:700; color:var(--bottle);}
+  .prod-price-inline{display:none;}
 
   .stock-label{
     display:block;
@@ -287,6 +287,21 @@
       flex-direction:column;
       align-items:flex-start;
       gap:3px;
+    }
+    table.products td.price-cell{
+      display:none;
+    }
+    .prod-name{
+      display:flex;
+      align-items:baseline;
+      gap:8px;
+    }
+    .prod-price-inline{
+      display:inline;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:14px;
+      color:var(--bottle);
     }
     .form-grid{grid-template-columns:1fr;}
   }
@@ -545,11 +560,7 @@
   function recalc(){
     let total = 0;
     PRODUCTS.forEach(p => {
-      const qty = getQty(p.id);
-      const sub = qty * p.price;
-      const cell = document.getElementById(`subtotal-${p.id}`);
-      if(cell) cell.textContent = fmt(sub);
-      total += sub;
+      total += getQty(p.id) * p.price;
     });
     document.getElementById("total-amount").textContent = fmt(total);
     return total;
@@ -590,10 +601,10 @@
     tr.id = `row-${p.id}`;
     tr.innerHTML = `
       <td data-label="Producto" class="prod-cell">
-        <span class="prod-name">${p.name}</span>
+        <span class="prod-name">${p.name}<span class="prod-price-inline">${fmt(p.price)}</span></span>
         ${p.style ? `<span class="prod-style">${p.style}</span>` : ""}
       </td>
-      <td data-label="Precio unitario" class="price-cell">
+      <td data-label="Precio" class="price-cell">
         ${fmt(p.price)}
         <span class="stock-label" id="stock-${p.id}"></span>
       </td>
@@ -604,7 +615,6 @@
           <button type="button" class="qty-btn" data-action="plus" data-id="${p.id}">+</button>
         </div>
       </td>
-      <td data-label="Subtotal" class="subtotal-cell" id="subtotal-${p.id}">$0</td>
     `;
     tbody.appendChild(tr);
   }
@@ -629,9 +639,8 @@
           <thead>
             <tr>
               <th>Producto (${group.size})</th>
-              <th class="num-col">Precio unitario</th>
+              <th class="num-col">Precio</th>
               <th class="num-col">Cantidad</th>
-              <th class="num-col">Subtotal</th>
             </tr>
           </thead>
           <tbody id="rows-${idx}"></tbody>
