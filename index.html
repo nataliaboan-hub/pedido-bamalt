@@ -554,9 +554,9 @@
   // Cualquier tamaño nuevo que agreguen (ej: "Barril") aparece solo, al final.
   const SIZE_ORDER = ["500ml", "1L", "Lata"];
   const SIZE_LABELS = {
-    "500ml": "Caja de medio litro",
-    "1L": "Caja de un litro",
-    "Lata": "Latas",
+    "500ml": "Caja de 12 botellas de 500ml",
+    "1L": "Caja de 12 botellas de 1L",
+    "Lata": "Caja de 12 latas",
   };
   // Tamaños que se venden por caja cerrada de 12 unidades (no por botella/lata suelta)
   const BOXABLE_SIZES = ["500ml", "1L", "Lata"];
@@ -751,7 +751,7 @@
     const section = document.createElement("section");
     const label = SIZE_LABELS[group.size] || group.size;
     const numStr = String(num).padStart(2, "0");
-    const prodHeader = boxable ? `Producto (Caja de ${UNITS_PER_BOX} — ${shortSizeLabel(group.size)})` : `Producto (${group.size})`;
+    const prodHeader = "Producto";
     const priceHeader = boxable ? "Precio por caja" : "Precio";
     const qtyHeader = boxable ? "Cantidad de cajas" : "Cantidad";
     section.innerHTML = `
@@ -1015,7 +1015,7 @@
 
   // ============ ENVÍO POR WHATSAPP ============
   // Reemplazá este número por el WhatsApp de tu local (código de país + número, sin +, sin espacios)
-  const STORE_WHATSAPP = "5491141696691";
+  const STORE_WHATSAPP = "5491100000000";
 
   function showToast(type, text){
     document.getElementById("order-toast-text").textContent = text;
@@ -1055,7 +1055,7 @@
 
     const total = recalc();
 
-    let msg = `*Nuevo pedido mayorista - Bierlife*\n\n`;
+    let msg = `*Nuevo pedido — Bierlife*\n\n`;
     msg += `*Nombre:* ${nombre}\n`;
     msg += `*Teléfono:* ${telefono}\n\n`;
 
