@@ -558,10 +558,13 @@
     "1L": "Caja de un litro",
     "Lata": "Latas",
   };
-  // Tamaños que se venden por caja cerrada de 12 unidades (no por botella suelta)
-  const BOXABLE_SIZES = ["500ml", "1L"];
+  // Tamaños que se venden por caja cerrada de 12 unidades (no por botella/lata suelta)
+  const BOXABLE_SIZES = ["500ml", "1L", "Lata"];
   const UNITS_PER_BOX = 12;
   function isBoxable(size){ return BOXABLE_SIZES.includes(size); }
+  // Nombres cortos para usar en frases tipo "Caja personalizada — {size}"
+  const SIZE_SHORT_LABELS = { "500ml": "500ml", "1L": "1L", "Lata": "latas" };
+  function shortSizeLabel(size){ return SIZE_SHORT_LABELS[size] || size; }
 
   // URL del Apps Script (termina en /exec) que guarda cada pedido en la planilla de historial
   const ORDERS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNdda33p8UabfwMY8GdnGlWD6Mc1kJCvblS-F3eUJpdg7noaH3E5bdWJjEiQiWMfwHqQ/exec";
@@ -748,7 +751,7 @@
     const section = document.createElement("section");
     const label = SIZE_LABELS[group.size] || group.size;
     const numStr = String(num).padStart(2, "0");
-    const prodHeader = boxable ? `Producto (Caja de ${UNITS_PER_BOX} — ${group.size})` : `Producto (${group.size})`;
+    const prodHeader = boxable ? `Producto (Caja de ${UNITS_PER_BOX} — ${shortSizeLabel(group.size)})` : `Producto (${group.size})`;
     const priceHeader = boxable ? "Precio por caja" : "Precio";
     const qtyHeader = boxable ? "Cantidad de cajas" : "Cantidad";
     section.innerHTML = `
@@ -827,7 +830,7 @@
       el.className = "custom-progress ok";
     } else {
       const falta = UNITS_PER_BOX - rem;
-      el.textContent = `Te faltan ${falta} botellas para completar la caja personalizada de ${size}`;
+      el.textContent = `Te faltan ${falta} botellas para completar la caja personalizada de ${shortSizeLabel(size)}`;
       el.className = "custom-progress warn";
     }
   }
@@ -866,7 +869,7 @@
       const options = productsOfSize.map(p => `<option value="${p.id}">${p.name} ${fmt(p.price)}</option>`).join("");
       return `
         <div class="custom-box-widget">
-          <h3 class="custom-box-title">Caja personalizada — ${size}</h3>
+          <h3 class="custom-box-title">Caja personalizada — ${shortSizeLabel(size)}</h3>
           <div class="custom-box-form">
             <select class="custom-select" id="customselect-${size}">
               <option value="">Elegí un sabor…</option>
@@ -1070,7 +1073,7 @@
 
     customGroups.forEach(g => {
       const totalBotellas = g.items.reduce((s, p) => s + p.qty, 0);
-      msg += `*Caja personalizada — ${g.size}* (${totalBotellas} botellas)\n`;
+      msg += `*Caja personalizada — ${shortSizeLabel(g.size)}* (${totalBotellas} botellas)\n`;
       g.items.forEach(p => {
         msg += `• ${p.name} x${p.qty} — ${fmt(p.qty * p.price)}\n`;
       });
